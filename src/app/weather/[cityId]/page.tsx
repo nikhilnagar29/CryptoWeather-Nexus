@@ -7,11 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import Map from '@/components/Map';
+import WeatherForecast from '@/components/WeatherForecast';
+
 import { 
   Sun, Moon, Droplets, Wind, Thermometer, Gauge, Navigation, 
   Sunrise, Sunset, Compass, CloudSun
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+
 
 interface WeatherData {
   name: string;
@@ -80,9 +84,9 @@ export default function WeatherPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search city..."
-            className="bg-gray-800 border-gray-700 text-white"
+            className="bg-gray-800 border-gray-700 h-10 placeholder-gray-400 text-white"
           />
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+          <Button type="submit" className="bg-blue-600 h-10  hover:bg-blue-700">
             Search
           </Button>
         </form>
@@ -100,131 +104,115 @@ export default function WeatherPage() {
           <>
             {/* Main Weather Card */}
             <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
+            <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <CloudSun className="w-8 h-8" />
+                <div className="flex items-center gap-4">
+                    <CloudSun className="w-8 h-8 text-cyan-400" />
                     <div>
-                      <h1 className="text-2xl  font-bold">{weather.name}</h1>
-                      <p className="text-gray-400">{weather.condition}</p>
+                    <h1 className="text-2xl font-bold text-gray-50">{weather.name}</h1>
+                    <p className="text-cyan-400">{weather.condition}</p>
                     </div>
-                  </div>
-                  <div className="text-4xl font-bold">
-                    {Math.round(weather.temp)}°C
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="flex items-center gap-2">
-                    <Thermometer className="w-6 h-6" />
-                    <div>
-                      <p className="text-gray-400">Feels like</p>
-                      <p>{Math.round(weather.temp)}°C</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Droplets className="w-6 h-6" />
-                    <div>
-                      <p className="text-gray-400">Humidity</p>
-                      <p>{weather.humidity}%</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Wind className="w-6 h-6" />
-                    <div>
-                      <p className="text-gray-400">Wind</p>
-                      <p>{weather.windSpeed} m/s</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Gauge className="w-6 h-6" />
-                    <div>
-                      <p className="text-gray-400">Pressure</p>
-                      <p>{weather.pressure} hPa</p>
-                    </div>
-                  </div>
                 </div>
-              </CardContent>
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                    {Math.round(weather.temp)}°C
+                </div>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                    { icon: Thermometer, label: "Feels like", value: `${Math.round(weather.temp)}°C` },
+                    { icon: Droplets, label: "Humidity", value: `${weather.humidity}%` },
+                    { icon: Wind, label: "Wind", value: `${weather.windSpeed} m/s` },
+                    { icon: Gauge, label: "Pressure", value: `${weather.pressure} hPa` }
+                ].map((metric, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                    <metric.icon className="w-6 h-6 text-cyan-400" />
+                    <div>
+                        <p className="text-gray-400 text-sm font-medium">{metric.label}</p>
+                        <p className="text-gray-50">{metric.value}</p>
+                    </div>
+                    </div>
+                ))}
+                </div>
+            </CardContent>
             </Card>
 
             {/* Additional Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Temperature Range */}
-              <Card className="bg-gray-800 border-gray-700">
+             <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Thermometer className="w-6 h-6" />
+                    <CardTitle className="flex items-center gap-2 text-gray-50">
+                    <Thermometer className="w-6 h-6 text-cyan-400" />
                     Temperature Range
-                  </CardTitle>
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Min</span>
-                      <span>{Math.round(weather.minTemp)}°C</span>
+                    <div className="space-y-2">
+                    <div className="flex justify-between text-gray-300 text-sm">
+                        <span>Min</span>
+                        <span>{Math.round(weather.minTemp)}°C</span>
                     </div>
                     <Progress 
-                      value={(weather.temp - weather.minTemp) / (weather.maxTemp - weather.minTemp) * 100}
-                      className="h-2 bg-gray-700"
+                        value={(weather.temp - weather.minTemp) / (weather.maxTemp - weather.minTemp) * 100}
+                        className="h-2 bg-gray-700"
+                        indicatorClassName="bg-cyan-400"
                     />
-                    <div className="flex justify-between">
-                      <span>Max</span>
-                      <span>{Math.round(weather.maxTemp)}°C</span>
+                    <div className="flex justify-between text-gray-300 text-sm">
+                        <span>Max</span>
+                        <span>{Math.round(weather.maxTemp)}°C</span>
                     </div>
-                  </div>
+                    </div>
                 </CardContent>
-              </Card>
+             </Card>
 
               {/* Sun Times */}
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sun className="w-6 h-6" />
+                    <CardTitle className="flex items-center gap-2 text-gray-50">
+                    <Sun className="w-6 h-6 text-amber-400" />
                     Sun Times
-                  </CardTitle>
+                    </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sunrise className="w-5 h-5" />
-                      Sunrise
+                    {[
+                    { icon: Sunrise, label: "Sunrise", time: weather.sunrise },
+                    { icon: Sunset, label: "Sunset", time: weather.sunset }
+                    ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between bg-gray-700/30 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 text-cyan-300">
+                        <item.icon className="w-5 h-5" />
+                        <span className="text-sm">{item.label}</span>
+                        </div>
+                        <span className="text-gray-50">
+                        {new Date(item.time * 1000).toLocaleTimeString()}
+                        </span>
                     </div>
-                    <span>
-                      {new Date(weather.sunrise * 1000).toLocaleTimeString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sunset className="w-5 h-5" />
-                      Sunset
-                    </div>
-                    <span>
-                      {new Date(weather.sunset * 1000).toLocaleTimeString()}
-                    </span>
-                  </div>
+                    ))}
                 </CardContent>
-              </Card>
+               </Card>
 
               {/* Coordinates */}
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Compass className="w-6 h-6" />
+                    <CardTitle className="flex items-center gap-2 text-gray-50">
+                    <Compass className="w-6 h-6 text-green-400" />
                     Coordinates
-                  </CardTitle>
+                    </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Latitude</span>
-                    <span>{weather.lat.toFixed(4)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Longitude</span>
-                    <span>{weather.lon.toFixed(4)}</span>
-                  </div>
+                    {[
+                    { label: "Latitude", value: weather.lat.toFixed(4) },
+                    { label: "Longitude", value: weather.lon.toFixed(4) }
+                    ].map((coord, i) => (
+                    <div key={i} className="flex justify-between">
+                        <span className="text-gray-400 text-sm">{coord.label}</span>
+                        <span className="text-gray-50 font-mono">{coord.value}</span>
+                    </div>
+                    ))}
                 </CardContent>
-              </Card>
+            </Card>
 
               {/* Weather Icon */}
               <Card className="bg-gray-800 border-gray-700">
@@ -237,49 +225,63 @@ export default function WeatherPage() {
                 </CardContent>
               </Card>
 
-              {/* Wind Direction */}
-                <Card className="bg-gray-800 border-gray-700">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                        <Navigation className="w-6 h-6" />
-                        Wind Direction
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col items-center gap-4">
-                        <div className="relative w-32 h-32">
-                        {/* Compass Rose */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-24 h-24 rounded-full border-2 border-gray-600">
-                            <span className="absolute top-0 left-1/2 -translate-x-1/2 text-xs">N</span>
-                            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xs">S</span>
-                            <span className="absolute left-0 top-1/2 -translate-y-1/2 text-xs">W</span>
-                            <span className="absolute right-0 top-1/2 -translate-y-1/2 text-xs">E</span>
-                            </div>
-                        </div>
-                        
-                        {/* Wind Direction Arrow */}
-                        {weather.windDirection && (
-                            <div 
-                            className="absolute inset-0 flex items-center justify-center"
-                            style={{ transform: `rotate(${weather.windDirection}deg)` }}
-                            >
-                            <Navigation className="w-12 h-12 text-red-200 transition-transform duration-500" />
-                            </div>
-                        )}
-                        </div>
-
-                        {/* Cardinal Direction Text */}
-                        {weather.windDirection && (
-                        <div className="text-xl font-mono">
-                            {getCardinalDirection(weather.windDirection)}
-                        </div>
+                <Card className="bg-gray-800 border-gray-700 ">     
+                    <CardContent className="m-[-10px]">
+                        {weather && (
+                        <Map lat={weather.lat} lon={weather.lon}  />
                         )}
                     </CardContent>
                 </Card>
+
+              
+                {/* Wind Direction */}
+                <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-gray-50">
+                    <Navigation className="w-6 h-6 text-red-400" />
+                    Wind Direction
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center gap-4">
+                    <div className="relative w-32 h-32">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-24 h-24 rounded-full border-2 border-gray-600 bg-gray-700/30">
+                        {["N", "S", "W", "E"].map((dir, i) => (
+                            <span key={dir} className={`absolute text-gray-300 text-xs ${
+                            i === 0 ? "top-0 left-1/2 -translate-x-1/2" :
+                            i === 1 ? "bottom-0 left-1/2 -translate-x-1/2" :
+                            i === 2 ? "left-0 top-1/2 -translate-y-1/2" : "right-0 top-1/2 -translate-y-1/2"
+                            }`}>
+                            {dir}
+                            </span>
+                        ))}
+                        </div>
+                    </div>
+                    {weather.windDirection && (
+                        <div className="absolute inset-0 flex items-center justify-center"
+                        style={{ transform: `rotate(${weather.windDirection}deg)` }}>
+                        <Navigation className="w-12 h-12 text-red-400 transition-transform duration-500" />
+                        </div>
+                    )}
+                    </div>
+                    {weather.windDirection && (
+                    <div className="text-xl font-mono text-cyan-400">
+                        {getCardinalDirection(weather.windDirection)}
+                    </div>
+                    )}
+                </CardContent>
+                </Card>
+
+                
+                
             </div>
+
           </>
+
         )}
+         <WeatherForecast cityId={cityId} />
       </div>
+     
     </div>
   );
 }

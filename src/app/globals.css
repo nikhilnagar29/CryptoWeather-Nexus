@@ -3,6 +3,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* src/styles/leaflet.css */
+.leaflet-container {
+  background-color: rgba(55, 65, 81, 0.5) !important; /* bg-gray-700 with opacity */
+}
+
+.leaflet-control-attribution {
+  background-color: #1f2937 !important; /* bg-gray-800 */
+  color: #d1d5db !important; /* text-gray-300 */
+  font-size: 0.75rem !important;
+}
+
 :root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
