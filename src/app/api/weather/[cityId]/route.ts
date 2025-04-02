@@ -30,7 +30,7 @@ export async function GET(
       const res = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityId)}&units=metric&appid=${process.env.OPENWEATHER_API_KEY}`
       );
-      console.log("res", res);
+     
   
       if (!res.ok) throw new Error(`Failed to fetch weather data for ${cityId}`);
   

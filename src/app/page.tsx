@@ -6,6 +6,8 @@ import CityWeather from './components/CityWeather';
 import AirPollution from './components/AirPollution';
 import CryptoNewsFeed from './components/CryptoNewsFeed';
 import NewsSearch from './components/NewsSearch';
+import CryptoChart from '@/components/CryptoChart';
+
 async function getWeatherData() {
   const res = await fetch('/api/weather', {
     cache: 'no-store'
@@ -32,9 +34,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-8 bg-gray-900">
       <main className="max-w-6xl mx-auto space-y-8">
       <h1 className="text-3xl font-bold text-center">News Search</h1>
+      <CryptoChart cryptoId="bitcoin" />
       <NewsSearch />
 
         <h1 className="text-3xl font-bold text-center">Crypto News</h1>

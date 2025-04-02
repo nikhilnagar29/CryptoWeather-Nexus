@@ -35,28 +35,56 @@ export async function GET(
     }
 
     const data = await response.json();
+
+    data.market_data = data.market_data || {}; // Ensure market_data exists
+
+    data.market_data = {
+      current_price: data.market_data.current_price?.usd ?? null,
+      market_cap: data.market_data.market_cap?.usd ?? null,
+      total_volume: data.market_data.total_volume?.usd ?? null,
+      high_24h: data.market_data.high_24h?.usd ?? null,
+      low_24h: data.market_data.low_24h?.usd ?? null,
+      price_change_24h: data.market_data.price_change_percentage_24h ?? null,
+      price_change_7d: data.market_data.price_change_percentage_7d ?? null,
+      price_change_30d: data.market_data.price_change_percentage_30d ?? null,
+      price_change_percentage_24h: data.market_data.price_change_percentage_24h ?? null,
+      price_change_percentage_7d: data.market_data.price_change_percentage_7d ?? null,
+      price_change_percentage_30d: data.market_data.price_change_percentage_30d ?? null,
+      price_change_percentage_1y: data.market_data.price_change_percentage_1y ?? null,
+    };
     
-    
+    console.log(data);
     // Extract relevant data
     const processedData = {
-      id: data.id,
-      symbol: data.symbol,
-      name: data.name,
-      description: data.description.en,
-      image: data.image.large,
-      market_data: {
-        current_price: data.market_data.current_price["usd"],
-        market_cap: data.market_data.market_cap["usd"],
-        total_volume: data.market_data.total_volume["usd"],
-        high_24h: data.market_data.high_24h["usd"],
-        low_24h: data.market_data.low_24h["usd"],
-        price_change_24h: data.market_data.price_change_percentage_24h,
-        price_change_7d: data.market_data.price_change_percentage_7d,
-        price_change_30d: data.market_data.price_change_percentage_30d
-      },
-      total_supply: data.market_data.total_supply,
-      last_updated: data.last_updated
-    };
+        id: data.id,
+        symbol: data.symbol,
+        name: data.name,
+        description: data.description.en,
+        hashing_algorithm: data.hashing_algorithm,
+        image: data.image.large,
+        market_data: {
+          current_price: data.market_data?.current_price ?? null,
+          market_cap: data.market_data?.market_cap ?? null,
+          total_volume: data.market_data?.total_volume ?? null,
+          high_24h: data.market_data?.high_24h ?? null,
+          low_24h: data.market_data?.low_24h ?? null,
+          price_change_24h: data.market_data?.price_change_percentage_24h ?? null,
+          price_change_7d: data.market_data?.price_change_percentage_7d ?? null,
+          price_change_30d: data.market_data?.price_change_percentage_30d ?? null,
+          price_change_percentage_24h: data.market_data?.price_change_percentage_24h ?? null,
+          price_change_percentage_7d: data.market_data?.price_change_percentage_7d ?? null,
+          price_change_percentage_30d: data.market_data?.price_change_percentage_30d ?? null,
+          price_change_percentage_1y: data.market_data?.price_change_percentage_1y ?? null,
+        },
+        homepage: data.links.homepage[0],
+        genesis_date: data.genesis_date,
+        sentiment_votes_up_percentage: data.sentiment_votes_up_percentage,
+        sentiment_votes_down_percentage: data.sentiment_votes_down_percentage,
+        blockchain_site: data.links.blockchain_site[0],
+        total_supply: data.market_data.total_supply,
+        last_updated: data.last_updated,
+      };
+      
 
     // Update cache
     cache.set(cacheKey, {

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET(_: Request, context: { params: { cityId: string } }) {
   try {
-    const { cityId } = context.params;
+    const { cityId } = await context.params;
 
     // Fetch city coordinates
     const geoResponse = await fetch(

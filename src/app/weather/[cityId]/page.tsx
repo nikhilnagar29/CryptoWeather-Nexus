@@ -77,7 +77,7 @@ export default function WeatherPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-8">
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="flex gap-4">
           <Input
