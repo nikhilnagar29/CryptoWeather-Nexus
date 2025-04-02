@@ -1,8 +1,10 @@
+// components/CryptoNewsFeed.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { formatRelativeTime } from '@/lib/utils';
 
 interface NewsArticle {
   title: string;
@@ -10,31 +12,8 @@ interface NewsArticle {
   source: string;
   url: string;
   publishedAt: string;
-  image: string;
+  image?: string;
 }
-
-const formatRelativeTime = (dateString: string) => {
-  try {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    const formatter = new Intl.RelativeTimeFormat('en', { style: 'short' });
-    
-    if (diffInSeconds < 60) {
-      return formatter.format(-Math.floor(diffInSeconds), 'second');
-    }
-    if (diffInSeconds < 3600) {
-      return formatter.format(-Math.floor(diffInSeconds / 60), 'minute');
-    }
-    if (diffInSeconds < 86400) {
-      return formatter.format(-Math.floor(diffInSeconds / 3600), 'hour');
-    }
-    return formatter.format(-Math.floor(diffInSeconds / 86400), 'day');
-  } catch (error) {
-    return 'Recently';
-  }
-};
 
 export default function CryptoNewsFeed() {
   const [news, setNews] = useState<NewsArticle[]>([]);
@@ -68,82 +47,117 @@ export default function CryptoNewsFeed() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h2 className="text-3xl font-bold text-gray-900 mb-8 dark:text-white">
-        Latest Crypto News
-        <span className="ml-2 text-blue-500">•</span>
-        <span className="ml-2 text-blue-500 animate-pulse">Live</span>
+  <div className="flex items-center justify-between mb-8">
+    <div className="relative">
+      <h2 className="text-3xl font-bold text-gray-900 dark:text-white relative inline-block">
+        <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+          Latest Crypto News
+        </span>
+        <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full" />
       </h2>
+    </div>
+    <span className="flex items-center gap-2 px-3 py-1 bg-blue-900 rounded-full text-sm font-medium text-blue-600 dark:text-blue-200">
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+      </span>
+      Live Updates
+    </span>
+  </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
-          Array(5).fill(0).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-              <Skeleton height={200} />
-              <div className="p-4">
-                <Skeleton count={3} />
+  <div className="space-y-6">
+    {loading ? (
+      Array(3).fill(0).map((_, i) => (
+        <Card key={i} className="p-4 bg-transparent">
+          <div className="flex gap-4 animate-pulse">
+            <Skeleton className="h-32 w-48 rounded-xl" />
+            <div className="space-y-3 flex-1">
+              <Skeleton className="h-4 w-[200px] rounded-lg" />
+              <Skeleton className="h-4 w-[180px] rounded-lg" />
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-full rounded-lg" />
+                <Skeleton className="h-3 w-[90%] rounded-lg" />
+                <Skeleton className="h-3 w-[80%] rounded-lg" />
               </div>
             </div>
-          ))
-        ) : (
-          news.map((article, index) => (
-            <article 
-              key={index}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="relative h-48">
+          </div>
+        </Card>
+      ))
+    ) : (
+      news.map((article) => (
+        <Card
+          key={article.url}
+          className="group relative border-1 border-gray-700 bg-gray-800 overflow-hidden transition-all duration-300 translate-y-1 hover:shadow-xl shadow-blue-900/20"
+        >
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col sm:flex-row gap-4 p-6"
+          >
+            {article.image && (
+              <div className="relative flex-shrink-0 w-full sm:w-48 h-48 sm:h-32 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 mix-blend-multiply" />
                 <img
-                  src={article.image || '/crypto-placeholder.jpg'}
+                  src={article.image}
                   alt={article.title}
-                  className="w-full h-full object-cover"
+                  className="rounded-xl object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
                 />
-                <span className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                <span className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow-sm border">
                   {article.source}
                 </span>
               </div>
-              
-              <div className="p-6">
-                <div className="flex items-center mb-2 text-sm text-gray-500 dark:text-gray-400">
-                  <time dateTime={article.publishedAt}>
-                    {formatRelativeTime(article.publishedAt)}
-                  </time>
-                </div>
-                
-                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
-                  {article.title}
-                </h3>
-                
-                <p className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-4">
-                  {article.description}
-                </p>
-                
-                <a
-                  href={article.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-colors duration-200"
+            )}
+
+            <div className={`flex-1 ${!article.image ? 'sm:pl-4' : ''}`}>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                <time 
+                  dateTime={article.publishedAt}
+                  className="flex items-center gap-1.5 text-gray-300"
                 >
-                  Read More
-                  <svg
-                    className="w-4 h-4 ml-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
-                </a>
+                  <span className="text-blue-500">🕒</span>
+                  {formatRelativeTime(article.publishedAt)}
+                </time>
+                <span className="text-muted-foreground/50">|</span>
+                <span className="font-medium text-purple-600 dark:text-purple-400">
+                  {article.source}
+                </span>
               </div>
-            </article>
-          ))
-        )}
-      </div>
-    </div>
+
+              <h3 className="text-xl font-bold mb-3 line-clamp-2 bg-gradient-to-r from-gray-100 to-gray-500 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
+                {article.title}
+              </h3>
+
+              <p className="line-clamp-3 mb-4 text-gray-100 leading-relaxed">
+                {article.description}
+              </p>
+
+              <div className="inline-flex items-center text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                <span className="relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-current after:transition-all after:duration-300 group-hover:after:w-full">
+                  Read Full Analysis
+                </span>
+                <svg
+                  className="w-4 h-4 ml-2 mt-px transform transition-transform group-hover:translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </div>
+            </div>
+          </a>
+        </Card>
+      ))
+    )}
+  </div>
+</div>
   );
 }
