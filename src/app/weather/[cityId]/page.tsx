@@ -157,7 +157,7 @@ export default function WeatherPage() {
                     <Progress 
                         value={(weather.temp - weather.minTemp) / (weather.maxTemp - weather.minTemp) * 100}
                         className="h-2 bg-gray-700"
-                        indicatorClassName="bg-cyan-400"
+
                     />
                     <div className="flex justify-between text-gray-300 text-sm">
                         <span>Max</span>

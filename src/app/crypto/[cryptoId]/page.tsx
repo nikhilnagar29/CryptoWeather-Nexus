@@ -200,7 +200,7 @@ export default function CryptoDashboard() {
                     <Progress
                     value={data.sentiment_votes_up_percentage}
                     className="h-2.5 bg-gray-700"
-                    indicatorClassName="bg-green-500"
+
                     />
                 </div>
                 )}
@@ -215,7 +215,7 @@ export default function CryptoDashboard() {
                     <Progress
                     value={data.sentiment_votes_down_percentage}
                     className="h-2.5 bg-gray-700"
-                    indicatorClassName="bg-red-500"
+
                     />
                 </div>
                 )}
