@@ -7,9 +7,10 @@ const CACHE_TTL = 60000; // 1 minute cache
 
 export async function GET(
   request: Request,
-  { params }: { params: { cryptoId: string } }
+  { params }: { params: Promise<{ cryptoId: string }> }
 ) {
-  const { cryptoId } =await params;
+  const { cryptoId } = await params;
+
 
   try {
     // Check cache first
