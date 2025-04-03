@@ -24,7 +24,7 @@ export async function GET(
   ) {
     try {
       const { cityId } = await context.params; // No need to await
-      console.log("cityId", cityId);
+      // console.log("cityId", cityId);
   
       // Fetch weather data for the requested city
       const res = await fetch(

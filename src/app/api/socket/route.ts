@@ -1,111 +1,47 @@
-// app/api/socket/route.ts
-import { Server } from 'socket.io';
-import { NextApiRequest } from 'next';
-import { NextApiResponseServerIO } from '@/types/next';
+import WebSocket, { Server } from "ws";
 
-// Define which cryptocurrencies to track for real-time updates
-const TRACKED_CRYPTOS = ['bitcoin', 'ethereum', 'dogecoin'];
+const wss = new Server({ port: 8080 });
 
-export default function SocketHandler(req: NextApiRequest, res: NextApiResponseServerIO) {
-  if (res.socket.server.io) {
-    console.log('Socket server already running');
-  } else {
-    console.log('Initializing socket server');
-    const io = new Server(res.socket.server);
-    res.socket.server.io = io;
+const CRYPTO_PAIRS = [
+  "btcusdt", "ethusdt", "bnbusdt", "xrpusdt", "adausdt",
+  "dogeusdt", "solusdt", "dotusdt", "ltcusdt"
+];
 
-    // Initialize last prices to track changes
-    let lastPrices: Record<string, number> = {};
+const BINANCE_WS = "wss://stream.binance.com:9443/ws";
 
-    // Function to fetch latest prices
-    const fetchPrices = async () => {
-      try {
-        const response = await fetch(
-          `https://api.coingecko.com/api/v3/simple/price?ids=${TRACKED_CRYPTOS.join(',')}&vs_currencies=usd&include_24hr_change=true`
-        );
-        
-        if (!response.ok) {
-          throw new Error(`CoinGecko API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Check for significant price changes (> 0.5%)
-        Object.entries(data).forEach(([crypto, values]: [string, any]) => {
-          const currentPrice = values.usd;
-          
-          // Skip if no previous price recorded
-          if (!lastPrices[crypto]) {
-            lastPrices[crypto] = currentPrice;
-            return;
-          }
-          
-          const priceChange = ((currentPrice - lastPrices[crypto]) / lastPrices[crypto]) * 100;
-          
-          // If change is significant, emit an event
-          if (Math.abs(priceChange) >= 0.5) {
-            io.emit('price_alert', {
-              type: 'price_alert',
-              crypto: crypto,
-              price: currentPrice,
-              previous: lastPrices[crypto],
-              change: priceChange.toFixed(2)
-            });
-          }
-          
-          // Always emit current price for real-time updates
-          io.emit('price_update', {
-            crypto: crypto,
-            price: currentPrice,
-            change_24h: values.usd_24h_change
-          });
-          
-          // Update last price
-          lastPrices[crypto] = currentPrice;
-        });
-      } catch (error) {
-        console.error('Error fetching crypto prices:', error);
-      }
+const binanceSocket = new WebSocket(BINANCE_WS);
+
+binanceSocket.on("open", () => {
+  console.log("Connected to Binance WebSocket");
+
+  binanceSocket.send(
+    JSON.stringify({
+      method: "SUBSCRIBE",
+      params: CRYPTO_PAIRS.map((pair) => `${pair}@trade`),
+      id: 1,
+    })
+  );
+});
+
+binanceSocket.on("message", (data: string) => {
+  const parsedData = JSON.parse(data);
+  if (parsedData.e === "trade") {
+    const message = {
+      pair: parsedData.s,
+      price: parseFloat(parsedData.p).toFixed(4),
     };
 
-    // Poll for price updates (every 30 seconds)
-    const priceUpdateInterval = setInterval(fetchPrices, 30000);
-
-    // Handle client connections
-    io.on('connection', (socket) => {
-      console.log(`Client connected: ${socket.id}`);
-      
-      // Send initial prices on connection
-      fetchPrices();
-      
-      // Handle specific crypto subscription
-      socket.on('subscribe_crypto', (cryptoId) => {
-        if (TRACKED_CRYPTOS.includes(cryptoId)) {
-          socket.join(`crypto_${cryptoId}`);
-          console.log(`Client ${socket.id} subscribed to ${cryptoId}`);
-        }
-      });
-      
-      socket.on('disconnect', () => {
-        console.log(`Client disconnected: ${socket.id}`);
-      });
-    });
-
-    // Clean up on server close
-    res.socket.server.on('close', () => {
-      clearInterval(priceUpdateInterval);
+    wss.clients.forEach((client: any) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(message));
+      }
     });
   }
-  
-  res.end();
-}
+});
 
-// You'll need to extend the NextApiResponse type
-// Create a file: types/next.ts
-// export interface NextApiResponseServerIO extends NextApiResponse {
-//   socket: Socket & {
-//     server: Server & {
-//       io: SocketIOServer;
-//     };
-//   };
-// }
+wss.on("connection", (ws: any) => {
+  console.log("New client connected");
+  ws.on("close", () => console.log("Client disconnected"));
+});
+
+console.log("WebSocket server running on ws://localhost:8080");

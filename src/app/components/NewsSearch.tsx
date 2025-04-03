@@ -1,9 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { MagnifyingGlassIcon, NewspaperIcon, ClockIcon } from '@heroicons/react/24/outline';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { MagnifyingGlassIcon, ClockIcon, ReloadIcon } from '@radix-ui/react-icons';
 
 interface NewsArticle {
   title: string;
@@ -16,25 +21,23 @@ interface NewsArticle {
   sentiment: string;
 }
 
-const formatDate = (dateString: string) => {
-  try {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(date);
-  } catch {
-    return 'Date not available';
-  }
+const formatRelativeTime = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
+
+  if (diffHours < 1) return `${Math.floor(diffHours * 60)}m ago`;
+  if (diffHours < 24) return `${Math.floor(diffHours)}h ago`;
+  return `${Math.floor(diffHours / 24)}d ago`;
 };
 
 export default function NewsSearch() {
   const [query, setQuery] = useState('');
-  const [size, setSize] = useState('10');
-  const [language, setLanguage] = useState('en');
   const [results, setResults] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [language, setLanguage] = useState('en');
+  const [size, setSize] = useState('10');
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,15 +48,20 @@ export default function NewsSearch() {
 
     try {
       const response = await fetch(
-        `/api/news/search?query=${encodeURIComponent(query)}&size=${size}&language=${language}`
+        `/api/news/search?query=${encodeURIComponent(query)}&size=${3}&language=${language}`
       );
-      
-      if (!response.ok) {
-        throw new Error(response.status === 400 ? 'Search query is required' : 'Failed to fetch results');
-      }
 
+      console.log(response);
+      
+      if (!response.ok) throw new Error('Failed to fetch results');
       const data = await response.json();
-      setResults(data);
+      
+      // Generate additional insights
+      
+      
+      setResults(data.map((article: NewsArticle, index: number) => ({
+        ...article,
+      })));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
     } finally {
@@ -62,167 +70,166 @@ export default function NewsSearch() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-800 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Search Header */}
-        <div className="text-center space-y-6">
-          <div className="inline-flex items-center gap-3 bg-gray-600 px-8 py-4 rounded-2xl shadow-sm">
-            <NewspaperIcon className="w-9 h-9 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-100">Crypto News Explorer</h1>
-          </div>
-          
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4 items-center justify-center">
-            <div className="relative w-full md:w-[500px]">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search cryptocurrency news..."
-                className="w-full pl-14 pr-6 py-4 rounded-xl border-0 ring-1 ring-gray-600 focus:ring-2 focus:ring-blue-500 bg-gray-700 shadow-sm text-lg"
-              />
-              <MagnifyingGlassIcon className="w-6 h-6 absolute left-5 top-4 text-gray-400" />
-            </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+        <div className="relative">
+          <h2 className="text-3xl font-bold text-foreground relative inline-block">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Crypto News Explorer
+            </span>
+            <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
+          </h2>
+        </div>
+        
+        <Badge variant="outline" className="gap-2 px-3 py-1 border-2 border-gray-800 text-gray-300">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
+          </span>
+          Real-time Updates
+        </Badge>
+      </div>
 
-            <div className="flex gap-3">
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="rounded-xl bg-gray-700 px-4 py-3 ring-1 ring-gray-600 focus:ring-2 focus:ring-blue-500 text-gray-100"
-              >
-                <option value="en">🌐 English</option>
-                <option value="es">🇪🇸 Spanish</option>
-                <option value="de">🇩🇪 German</option>
-                <option value="fr">🇫🇷 French</option>
-              </select>
-
-              <select
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-                className="rounded-xl bg-gray-700 px-4 py-3 ring-1 ring-gray-600 focus:ring-2 focus:ring-blue-500 text-gray-100"
-              >
-                <option value="5">5 Results</option>
-                <option value="10">10 Results</option>
-                <option value="20">20 Results</option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl transition-all duration-200 flex items-center gap-3 text-lg font-medium shadow-lg hover:shadow-blue-200"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin">↻</div>
-                  Searching...
-                </>
-              ) : (
-                <>
-                  <MagnifyingGlassIcon className="w-5 h-5" />
-                  Explore News
-                </>
-              )}
-            </button>
-          </form>
+      <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4 mb-12">
+        <div className="relative flex-1">
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search cryptocurrency news..."
+            className="pl-12 pr-6 py-6 text-lg border-2 border-gray-800 text-gray-300 bg-gray-800 text-2xl"
+          />
+          <MagnifyingGlassIcon className="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
         </div>
 
-        {/* Results Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex gap-2">
+          <Select value={language} onValueChange={setLanguage}>
+            <SelectTrigger className="w-[150px] py-6 border-2 border-gray-800 text-gray-300 bg-gray-800">
+              <SelectValue placeholder="Language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem className="text-gray-300" value="en">🌐 English</SelectItem>
+              <SelectItem className="text-gray-300" value="es">🇪🇸 Spanish</SelectItem>
+              <SelectItem className="text-gray-300" value="de">🇩🇪 German</SelectItem>
+              <SelectItem className="text-gray-300" value="fr">🇫🇷 French</SelectItem>
+            </SelectContent>
+          </Select>
+
+          
+        </div>
+
+        <Button 
+          type="submit" 
+          size="lg" 
+          className="py-6 text-lg gap-2 border-2 border-gray-800  text-gray-300 bg-gray-800"
+          disabled={loading}
+        >
           {loading ? (
-            Array(parseInt(size)).fill(0).map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-all">
-                <Skeleton height={220} />
-                <div className="p-6 space-y-4">
-                  <Skeleton width={140} height={20} />
-                  <Skeleton count={2} />
-                  <Skeleton width={100} height={16} />
+            <>
+              <ReloadIcon className="w-5 h-5 animate-spin" />
+              Searching...
+            </>
+          ) : (
+            <>
+              <MagnifyingGlassIcon className="w-5 h-5" />
+              Explore News
+            </>
+          )}
+        </Button>
+      </form>
+
+      {error && (
+        <Alert variant="destructive" className="mb-8">
+          <AlertTitle>Search Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          Array(parseInt(size)).fill(0).map((_, i) => (
+            <Card key={i} className="p-6">
+              <div className="flex flex-col gap-4">
+                <Skeleton className="h-48 w-full rounded-xl" />
+                <div className="space-y-3">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-4 w-2/3" />
                 </div>
               </div>
-            ))
-          ) : results.length > 0 ? (
-            results.map((article, index) => (
-              <article 
-                key={index}
-                className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-all group"
+            </Card>
+          ))
+        ) : results.length > 0 ? (
+          results.map((article) => (
+            <Card
+              key={article.url}
+              className="group relative overflow-hidden transition-transform hover:-translate-y-1 bg-gray-800"
+            >
+              <a
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col h-full"
               >
-                <div className="relative h-56">
+                <div className="relative aspect-video overflow-hidden">
                   <img
-                    src={article.image || '/news-placeholder.jpg'}
+                    src={article.image}
                     alt={article.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <h3 className="text-xl font-semibold text-white line-clamp-2 leading-tight">
-                      {article.title}
-                    </h3>
-                  </div>
-                  <span className="absolute top-4 right-4 bg-white/90 px-3 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${
-                      article.sentiment === 'positive' ? 'bg-green-500' :
-                      article.sentiment === 'negative' ? 'bg-red-500' : 'bg-gray-400'
-                    }`}></span>
+                  <Badge className="absolute top-4 right-4 backdrop-blur-sm">
                     {article.source}
-                  </span>
+                  </Badge>
                 </div>
-                
-                <div className="p-5 space-y-5">
-                  <div className="flex items-center gap-3 text-sm text-gray-500">
+
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                     <ClockIcon className="w-4 h-4" />
-                    <span>{formatDate(article.publishedAt)}</span>
+                    <span className="text-gray-300">{formatRelativeTime(article.publishedAt)}</span>
                   </div>
 
-                  <p className="text-gray-600 line-clamp-3 leading-relaxed">
+                  <h3 className="text-xl font-semibold mb-3 line-clamp-2 text-gray-300">
+                    {article.title}
+                  </h3>
+
+                  <p className="text-gray-300 line-clamp-3 mb-4">
                     {article.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-2">
-                    {article.keywords.slice(0, 4).map((keyword, i) => (
-                      <span 
-                        key={i}
-                        className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors"
-                      >
-                        #{keyword}
-                      </span>
-                    ))}
+                  {/* Additional Insights */}
+                  <div className="mt-auto space-y-2 text-gray-600">
+                    <div className="flex gap-2">
+                      <Badge variant={article.sentiment === 'positive' ? 'default' : 'destructive'}>
+                        {article.sentiment} Sentiment
+                      </Badge>
+                      
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 text-gray-600">
+                      {article.keywords.slice(0, 3).map((keyword) => (
+                        <Badge 
+                          key={keyword}
+                          variant="secondary"
+                          className="font-normal text-blue-700"
+                        >
+                          #{keyword}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    Read Full Story
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 8l4 4m0 0l-4 4m4-4H3"
-                      />
-                    </svg>
-                  </a>
                 </div>
-              </article>
-            ))
-          ) : (
-            !loading && (
-              <div className="col-span-full text-center py-16">
-                <div className="text-gray-400 text-lg">
-                  No results found. Try searching for terms like "Bitcoin", "Ethereum", or "Blockchain"
-                </div>
-              </div>
-            )
-          )}
-        </div>
+              </a>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-16 space-y-4">
+            <div className="text-muted-foreground text-lg">
+              No results found. Try searching for something else!
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

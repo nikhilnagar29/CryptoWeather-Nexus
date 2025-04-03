@@ -32,7 +32,7 @@ export async function GET() {
         if (!res.ok) throw new Error(`Failed to fetch ${city}`);
         
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         return {
           id: city.toLowerCase().replace(' ', '-'),
           name: city,

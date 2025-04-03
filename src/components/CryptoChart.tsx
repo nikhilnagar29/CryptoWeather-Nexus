@@ -34,65 +34,30 @@ const CryptoChart = ({ cryptoId = 'bitcoin' }: CryptoChartProps) => {
   // Ensure cryptoId is always a valid string
   const safeId = cryptoId || 'bitcoin';
   
-  // Function to fetch chart data
   const fetchChartData = async () => {
     try {
-      // Check if we have cached data that's less than 15 minutes old
-      const cacheKey = `${safeId}_${days}`;
-      const now = Date.now();
-      const cachedData = cachedChartDataRef.current[cacheKey];
-      
-      if (cachedData && (now - cachedData.timestamp < 15 * 60 * 1000)) {
-        // Use cached data if it's recent enough
-        setChartData(cachedData.data);
-        setLoading(false);
-        return;
-      }
-      
-      // Fetch new data if cache is stale or doesn't exist
       setLoading(true);
-      const response = await fetch(
-        `https://api.coingecko.com/api/v3/coins/${safeId}/market_chart?vs_currency=usd&days=${days}`
-      );
-      
+  
+      const response = await fetch(`/api/crypto/chat?cryptoId=${safeId}&days=${days}`);
+  
       if (!response.ok) {
-        throw new Error(`Failed to fetch chart data: ${response.status}`);
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
-      
+  
       const data = await response.json();
-      
-      // Process data for chart with updated date format MM/DD/YY
-      const formattedData = data.prices.map((item: [number, number]) => {
-        const date = new Date(item[0]);
-        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().slice(-2)}`;
-        return {
-          timestamp: formattedDate,
-          price: item[1],
-        };
-      });
-      
-      // Cache the data
-      cachedChartDataRef.current[cacheKey] = {
-        data: formattedData,
-        timestamp: now
-      };
-      
-      setChartData(formattedData);
-      setError(null);
+      setChartData(data.prices.map(([timestamp, price]: [number, number]) => ({
+        timestamp: new Date(timestamp).toLocaleDateString(),
+        price,
+      })));
+  
     } catch (err) {
       console.error("Error fetching chart data:", err);
-      setError("Failed to load chart data. Using cached data if available.");
-      
-      // Use cached data as fallback if available
-      const cacheKey = `${safeId}_${days}`;
-      const cachedData = cachedChartDataRef.current[cacheKey];
-      if (cachedData) {
-        setChartData(cachedData.data);
-      }
+      setError("Failed to load chart data.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   // Function to establish socket connection
   const connectWebSocket = () => {
@@ -131,8 +96,20 @@ const CryptoChart = ({ cryptoId = 'bitcoin' }: CryptoChartProps) => {
       
       ws.onmessage = (event) => {
         try {
+          // Check if message is valid JSON
+          if (typeof event.data !== 'string') return;
+          
           const message = JSON.parse(event.data);
           
+          // Handle subscription confirmation
+          if (message.id === 1) {
+            if (message.result === null) {
+              console.log('Subscription successful');
+            } else {
+              console.error('Subscription error:', message.error);
+            }
+            return;
+          }
           // Check if this is ticker data (not a subscription response)
           if (message.e === '24hrTicker') {
             const price = parseFloat(message.c);
