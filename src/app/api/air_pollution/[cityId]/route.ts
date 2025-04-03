@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, context: { params: Record<string, string> }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ cityId: string }> }
+) {
   try {
-    const cityId = context.params.cityId; // Extract cityId from params
+    const { cityId } = await params; // Await and destructure cityId
 
     if (!cityId) throw new Error("City ID is required");
 
@@ -28,8 +31,8 @@ export async function GET(req: NextRequest, context: { params: Record<string, st
     const pollutionDetails = airPollutionData.list[0];
     const result = {
       city: cityId,
-      aqi: pollutionDetails.main.aqi, // Air Quality Index (1-5 scale)
-      components: pollutionDetails.components, // Pollutants details
+      aqi: pollutionDetails.main.aqi,
+      components: pollutionDetails.components,
     };
 
     return NextResponse.json(result);
