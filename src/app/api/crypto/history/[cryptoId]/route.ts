@@ -7,7 +7,7 @@ const CACHE_TTL = 300000; // 5 minute cache for historical data
 
 export async function GET(
   request: Request,
-  { params }: { params: { cryptoId: string } }
+  { params }: { params: Promise<{ cryptoId: string }> }
 ) {
   const { cryptoId } = await params;
   const url = new URL(request.url);
