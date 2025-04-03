@@ -1,37 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# CryptoWeather-Nexus
 
-## Getting Started
+CryptoWeather-Nexus is a web application that provides real-time weather, air pollution data, live cryptocurrency prices, and news updates. The app utilizes multiple APIs to deliver up-to-date information on different domains.
 
-First, run the development server:
+## 🌟 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **🌦 Weather & Air Pollution Data:** Get real-time weather conditions and air pollution levels for any city.
+- **📈 Cryptocurrency Data:** View details about cryptocurrencies, including live prices and historical trends.
+- **📰 News Search & Crypto News:** Search for news related to any topic, including crypto-specific news.
+- **🔗 WebSocket Integration:** Live crypto prices via WebSocket for real-time updates.
+
+---
+
+## 🔧 Technologies & APIs Used
+
+- **OpenWeatherMap API:** [https://openweathermap.org/api](https://openweathermap.org/api) (Weather & Air Pollution Data)
+- **CoinGecko API:** [https://www.coingecko.com/en/api](https://www.coingecko.com/en/api) (Crypto Data & Historical Prices)
+- **Binance WebSocket:** Live cryptocurrency price updates.
+- **NewsData.io API:** [https://newsdata.io/](https://newsdata.io/) (News Search & Crypto News)
+- **Next.js** for frontend and API routes.
+- **TypeScript & Tailwind CSS** for styling and development.
+
+---
+
+## 🛠 Setup Instructions
+
+### 1️⃣ Clone the Repository
+
+```sh
+ git clone https://github.com/nikhilnagar29/CryptoWeather-Nexus.git
+ cd CryptoWeather-Nexus
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2️⃣ Create Environment Variables
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Create a `.env.local` file in the root directory and add the following keys:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```ini
+OPENWEATHER_API_KEY=your_api_key_here
+NEWSDATA_API_KEY=your_api_key_here
+```
 
-## Learn More
+### 3️⃣ Install Dependencies & Run the App
 
-To learn more about Next.js, take a look at the following resources:
+```sh
+npm install
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The app will be available at **`http://localhost:3000/`**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🔗 Live Demo
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+You can access the live version at **[CryptoWeather-Nexus](https://crypto-weather-nexus-rq28.vercel.app/)**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# CryptoWeather-Nexus
+---
+
+## 📌 Key Pages & Features
+
+### **🌍 Weather & Crypto Overview**
+
+- Displays temperatures of different cities and live prices of various cryptocurrencies.
+- News related to cryptocurrencies.
+
+![Weather & Crypto Overview](/public/img1.png)
+
+### **📊 Cryptocurrency Details**
+
+- Access details about a specific cryptocurrency by visiting:
+  ```
+  http://localhost:3000/crypto/[coin]
+  ```
+- Example: **Bitcoin details:** `http://localhost:3000/crypto/bitcoin`
+
+![Crypto Details](/public/img2.png)
+
+### **🌦 City Weather & Air Pollution Details**
+
+- Get complete weather details and air pollution levels for any location.
+- URL Format:
+  ```
+  https://crypto-weather-nexus-rq28.vercel.app/weather/[city]
+  ```
+- Example: **Weather in New York:** `https://crypto-weather-nexus-rq28.vercel.app/weather/new-york`
+
+![City Weather](/public/img3.png)
+
+---
+
+## 🚀 Future Enhancements
+
+- Add more cryptocurrencies and improve the UI.
+- Implement user authentication for personalized dashboards.
+- Add multi-language support.
+
+---
+
+## 👨‍💻 Author
+
+Developed by **Nikhil Nagar**
+
+📧 Contact: [Email](mailto:nikhilnagar@example.com) | [GitHub](https://github.com/nikhilnagar29)
+
+---
+
+_Enjoy using CryptoWeather-Nexus! 🚀_
