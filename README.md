@@ -101,7 +101,7 @@ You can access the live version at **[CryptoWeather-Nexus](https://crypto-weathe
 
 Developed by **Nikhil Nagar**
 
-📧 Contact: [Email](mailto:nikhilnagar@example.com) | [GitHub](https://github.com/nikhilnagar29)
+📧 Contact: [Email](mailto:nsquarepart1@example.com) | [GitHub](https://github.com/nikhilnagar29)
 
 ---
 

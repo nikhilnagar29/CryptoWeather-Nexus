@@ -224,9 +224,9 @@ export default function NewsSearch() {
             </Card>
           ))
         ) : (
-          <div className="col-span-full text-center py-16 space-y-4">
+          <div className="col-span-full text-center  space-y-4">
             <div className="text-muted-foreground text-lg">
-              No results found. Try searching for something else!
+             
             </div>
           </div>
         )}

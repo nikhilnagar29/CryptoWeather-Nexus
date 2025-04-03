@@ -84,7 +84,7 @@ export default function LiveCryptoPrices() {
   return (
     <div className="p-6 bg-gray-800 rounded-xl shadow-lg">
       {/* Crypto Buttons */}
-      <div className="flex justify-center gap-5 mb-4">
+      <div className="flex flex-wrap justify-center gap-5 mb-4">
         <Button 
           onClick={() => handleCryptoRedirect('bitcoin')} 
           className="flex-1 md:flex-none bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl"

@@ -92,10 +92,12 @@ export default function Home() {
           <div>
             <CryptoChart cryptoId="bitcoin" />
           </div>
+
+          <NewsSearch />
           
           <CryptoNewsFeed />
           
-          <NewsSearch />
+          
           
         </main>
       </div>
