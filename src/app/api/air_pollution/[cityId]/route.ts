@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, { params }: { params: { cityId: string } }) {
+export async function GET(req: NextRequest, context: { params: Record<string, string> }) {
   try {
-    const cityId = params.cityId; // Extract cityId from params
+    const cityId = context.params.cityId; // Extract cityId from params
+
+    if (!cityId) throw new Error("City ID is required");
 
     // Fetch city coordinates
     const geoResponse = await fetch(
       `https://api.openweathermap.org/geo/1.0/direct?q=${cityId}&limit=1&appid=${process.env.OPENWEATHER_API_KEY}`
     );
     if (!geoResponse.ok) throw new Error(`City "${cityId}" not found`);
-    
+
     const geoData = await geoResponse.json();
     if (!geoData.length) throw new Error('City not found');
 
