@@ -1,16 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(_: Request, context: { params: { cityId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { cityId: string } }) {
   try {
-    const { cityId } = await context.params;
+    const cityId = params.cityId; // Extract cityId from params
 
     // Fetch city coordinates
     const geoResponse = await fetch(
       `https://api.openweathermap.org/geo/1.0/direct?q=${cityId}&limit=1&appid=${process.env.OPENWEATHER_API_KEY}`
     );
     if (!geoResponse.ok) throw new Error(`City "${cityId}" not found`);
+    
     const geoData = await geoResponse.json();
     if (!geoData.length) throw new Error('City not found');
+
     const { lat, lon } = geoData[0];
 
     // Fetch air pollution data
@@ -18,6 +20,7 @@ export async function GET(_: Request, context: { params: { cityId: string } }) {
       `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${process.env.OPENWEATHER_API_KEY}`
     );
     if (!airPollutionResponse.ok) throw new Error('Failed to fetch air pollution data');
+
     const airPollutionData = await airPollutionResponse.json();
 
     const pollutionDetails = airPollutionData.list[0];
